@@ -1,0 +1,2 @@
+python prediction.py > log.txt
+python email_notify.py

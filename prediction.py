@@ -30,7 +30,7 @@ def loadTrainingData():
     Y = []
     test_rate = 0.2
     classes = 10
-    class_data = 500
+    class_data = 1000
 
     for i in range(0, classes):
         for j in range(0, class_data):
@@ -95,6 +95,7 @@ model.fit({'input': X}, {'target': Y}, n_epoch=20,
 
 
 predictedY = np.array(model.predict(testX))
+predictedY = np.argmax(predictedY, axis=1)
 
 fstream = open(result_file, 'w+')
 for i in range(0, len(predictedY)):
