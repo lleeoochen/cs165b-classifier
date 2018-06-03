@@ -62,7 +62,6 @@ def loadTestingData():
 print ("Ready to start.")
 X, Y, validX, validY = loadTrainingData()
 testX = loadTestingData()
-testX = X
 
 X = X.reshape([-1, 28, 28, 1])
 validX = validX.reshape([-1, 28, 28, 1])
@@ -73,35 +72,35 @@ testX = testX.reshape([-1, 28, 28, 1])
 print ("Ready to build layers.")
 network = input_data(shape=[None, 28, 28, 1], name='input')
 
-network = conv_2d(network, 32, 5, activation='relu', regularizer="L2")
+network = conv_2d(network, 32, 3, activation='relu')
+network = conv_2d(network, 32, 3, activation='relu')
 network = max_pool_2d(network, 2)
 network = local_response_normalization(network)
 
-network = conv_2d(network, 64, 5, activation='relu', regularizer="L2")
+network = conv_2d(network, 64, 3, activation='relu')
+network = conv_2d(network, 64, 3, activation='relu')
 network = max_pool_2d(network, 2)
 network = local_response_normalization(network)
 
-network = conv_2d(network, 128, 5, activation='relu', regularizer="L2") #
-network = max_pool_2d(network, 2) #
-network = local_response_normalization(network) #
+network = conv_2d(network, 128, 3, activation='relu')
+network = conv_2d(network, 128, 3, activation='relu')
+network = max_pool_2d(network, 2)
+network = local_response_normalization(network)
 
-network = dropout(network, 0.8) #
-network = fully_connected(network, 256, activation='relu') #
-# network = fully_connected(network, 256, activation='tanh')
-# network = dropout(network, 0.8)
-
-network = fully_connected(network, 512, activation='relu') #
-# network = fully_connected(network, 512, activation='tanh')
-# network = dropout(network, 0.8)
-
+network = fully_connected(network, 256, activation='relu')
+network = dropout(network, 0.5)
+network = fully_connected(network, 512, activation='relu')
+network = dropout(network, 0.5)
 network = fully_connected(network, 10, activation='softmax')
-network = regression(network, optimizer='adam', learning_rate=0.01, loss='categorical_crossentropy', name='target')
+
+network = regression(network, optimizer='adam', learning_rate=0.001, loss='categorical_crossentropy', name='target')
 
 # Training
 print ("Ready to get fit.")
 model = tflearn.DNN(network, tensorboard_verbose=0)
 model.fit({'input': X}, {'target': Y},
-          n_epoch=20,
+          n_epoch=200,
+          shuffle=True,
           batch_size=50,
           validation_set=({'input': validX}, {'target': validY}),
           snapshot_step=100,
@@ -112,10 +111,14 @@ model.fit({'input': X}, {'target': Y},
 predictedY = np.array(model.predict(testX))
 predictedY = np.argmax(predictedY, axis=1)
 
+summary = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 fstream = open(result_file, 'w+')
 for i in range(0, len(predictedY)):
     fstream.write(str(predictedY[i]) + '\n')
+    summary[predictedY[i]] += 1
 fstream.close()
+
+print summary
 
 # correctRatio = np.mean(np.equal(np.argmax(predictedY, axis=1), np.argmax(Y, axis=1)).astype(int))
 # print("Validation accuracy using predict (max): {}".format(correctRatio))
