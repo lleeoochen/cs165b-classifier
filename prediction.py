@@ -99,9 +99,9 @@ network = regression(network, optimizer='adam', learning_rate=0.001, loss='categ
 print ("Ready to get fit.")
 model = tflearn.DNN(network, tensorboard_verbose=0)
 model.fit({'input': X}, {'target': Y},
-          n_epoch=200,
+          n_epoch=500,
           shuffle=True,
-          batch_size=50,
+          batch_size=100,
           validation_set=({'input': validX}, {'target': validY}),
           snapshot_step=100,
           show_metric=True,
