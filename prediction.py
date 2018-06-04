@@ -1,5 +1,5 @@
-# https://github.com/tflearn/tflearn/blob/master/examples/images/convnet_mnist.py
 
+# Reference Source: https://github.com/tflearn/tflearn/blob/master/examples/images/
 import tflearn
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.conv import conv_2d, max_pool_2d
@@ -11,19 +11,25 @@ import numpy as np
 import sys
 
 
+# Constants
 test_path = './hw4_test/'
 train_path = './hw4_train/'
 result_file = 'prediction.txt'
 
 
+# Print current load status.
 def printStatus(status):
     sys.stdout.write(status)
     sys.stdout.flush()
 
+
+# Load each image file
 def loadImage(filename):
     img = Image.open(filename)
     return np.asarray(img.getdata())
 
+
+# Load training data from file
 def loadTrainingData():
     print ('Loading training data...')
     X = []
@@ -46,6 +52,8 @@ def loadTrainingData():
     X, validX, Y, validY = train_test_split(X, Y, test_size=0.1, random_state=42)
     return (np.array(X), np.array(Y), np.array(validX), np.array(validY))
 
+
+# Load testing data from file
 def loadTestingData():
     print ('Loading testing data...')
     testX = []
@@ -58,17 +66,19 @@ def loadTestingData():
     return np.array(testX)
 
 
-# Data loading and preprocessing
+# Load training data and testing data
 print ("Ready to start.")
 X, Y, validX, validY = loadTrainingData()
 testX = loadTestingData()
 
+
+# Transform input data
 X = X.reshape([-1, 28, 28, 1])
 validX = validX.reshape([-1, 28, 28, 1])
 testX = testX.reshape([-1, 28, 28, 1])
 
 
-# Building convolutional network
+# Construct deep learning network
 print ("Ready to build layers.")
 network = input_data(shape=[None, 28, 28, 1], name='input')
 
@@ -92,10 +102,10 @@ network = dropout(network, 0.5)
 network = fully_connected(network, 512, activation='relu')
 network = dropout(network, 0.5)
 network = fully_connected(network, 10, activation='softmax')
-
 network = regression(network, optimizer='adam', learning_rate=0.001, loss='categorical_crossentropy', name='target')
 
-# Training
+
+# Train model with training data
 print ("Ready to get fit.")
 model = tflearn.DNN(network, tensorboard_verbose=0)
 model.fit({'input': X}, {'target': Y},
@@ -108,17 +118,16 @@ model.fit({'input': X}, {'target': Y},
           run_id='convnet_mnist')
 
 
+# Predict testing data
 predictedY = np.array(model.predict(testX))
 predictedY = np.argmax(predictedY, axis=1)
 
+
+# Print out predicted result
 summary = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 fstream = open(result_file, 'w+')
 for i in range(0, len(predictedY)):
     fstream.write(str(predictedY[i]) + '\n')
     summary[predictedY[i]] += 1
 fstream.close()
-
 print summary
-
-# correctRatio = np.mean(np.equal(np.argmax(predictedY, axis=1), np.argmax(Y, axis=1)).astype(int))
-# print("Validation accuracy using predict (max): {}".format(correctRatio))
