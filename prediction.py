@@ -153,7 +153,7 @@ if os.path.isfile(model_file):
 else:
     print ("Ready to get fit.")
     model.fit({'input': X}, {'target': Y},
-              n_epoch=5,
+              n_epoch=50,
               batch_size=100,
               validation_set=({'input': validX}, {'target': validY}),
               snapshot_step=100,
