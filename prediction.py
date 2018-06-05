@@ -47,12 +47,14 @@ from sklearn.model_selection import train_test_split
 from PIL import Image
 import numpy as np
 import sys
+import os
 
 
 # Constants
 test_path = './hw4_test/'
 train_path = './hw4_train/'
 result_file = 'prediction.txt'
+model_file = 'model.tflearn'
 
 
 # Print current load status.
@@ -144,15 +146,20 @@ network = regression(network, optimizer='adam', learning_rate=0.001, loss='categ
 
 
 # Train model with training data
-print ("Ready to get fit.")
 model = tflearn.DNN(network, tensorboard_verbose=0)
-model.fit({'input': X}, {'target': Y},
-          n_epoch=500,
-          batch_size=100,
-          validation_set=({'input': validX}, {'target': validY}),
-          snapshot_step=100,
-          show_metric=True,
-          run_id='convnet_mnist')
+if os.path.isfile(model_file):
+    print ("Get model from file.")
+    model.load(model_file)
+else:
+    print ("Ready to get fit.")
+    model.fit({'input': X}, {'target': Y},
+              n_epoch=5,
+              batch_size=100,
+              validation_set=({'input': validX}, {'target': validY}),
+              snapshot_step=100,
+              show_metric=True,
+              run_id='convnet_mnist')
+    model.save(model_file)
 
 
 # Predict testing data
